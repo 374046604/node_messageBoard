@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="./css/common.css" />
+    <style>
+        .container {
+            width: 1000px;
+            margin: 0 auto;
+        }
+
+        .main {
+            height: 500px;
+            overflow-y: scroll;
+            border-radius: 10px;
+            border: 3px solid red;
+            -ms-overflow-style: none;
+            overflow: -moz-scrollbars-none;
+        }
+
+        .main::-webkit-scrollbar {
+            width: 0px
+        }
+
+        .main>ul {
+            width: 100%!important;
+        }
+
+        .fl {
+            float: left;
+        }
+
+        .fr {
+            float: right;
+        }
+
+        .li>div {
+            margin: 5px 0;
+            height: 50px;
+            line-height: 50px;
+            width: 400px;
+            background: red;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .li>div.fl {
+            margin-left: 10px;
+            background: #ff6600;
+        }
+
+        .li>div.fr {
+            margin-right: 10px;
+            background: #7fff00;
+        }
+
+        .page {
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .page>button {
+            width: 100px;
+            height: 30px;
+            font-size: 20px;
+        }
+
+        .context {
+            padding-top: 25px;
+            height: 79px;
+            margin-top: 50px;
+            border-radius: 10px;
+            border: 5px solid red;
+        }
+
+        .context .input {
+            margin: 0 50px;
+            height: 50px;
+            width: 600px;
+            line-height: 50px;
+            font-size: 20px;
+        }
+
+        .context button {
+            height: 50px;
+            width: 200px;
+            background: blue;
+            border-radius: 5px;
+            font-size: 20px;
+        }
+
+        .title {
+            margin: 0 auto;
+            margin-top: 20px;
+            width: 400px;
+            height: 50px;
+            line-height: 50px;
+            font-size: 20px;
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+            background: #ff6600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="main">
+            <ul>
+                <!-- <li class="li clearfix">
+                    <div class="fl">1</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fl">2</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fl">3</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fr">4</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fl">5</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fl">3</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fr">4</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fl">5</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fl">3</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fr">4</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fl">5</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fl">3</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fr">4</div>
+                </li>
+                <li class="li clearfix">
+                    <div class="fl">5</div>
+                </li> -->
+            </ul>
+        </div>
+        <div class="page">
+            <button class="jian">上一页</button>
+            <button class="index"></button>
+            <button class="jia">下一页</button>
+        </div>
+        <div class="context">
+            <input type="text" class="input" />
+            <button class="sub">提交</button>
+        </div>
+    </div>
+    <script src="./js/jquery-2.2.4.js"></script>
+    <script>
+        $(function () {
+            var theIndex = 1;
+            var theText = {
+                init: function () {
+                    var _this = this;
+                    //初始化数据
+                    this.setIndex(theIndex);
+                    this.find();
+                    $('.jia').click(function () {
+                        theIndex++;
+                        _this.setIndex(theIndex);
+                        _this.find();
+                    });
+                    $('.jian').click(function () {
+                        if (theIndex - 1 <= 0) {
+                            theIndex = 1;
+                            _this.setIndex(theIndex);
+                            _this.find();
+                        } else {
+                            theIndex--;
+                            _this.setIndex(theIndex);
+                            _this.find();
+                        }
+                    });
+                    $('.sub').click(function () {
+                        $.ajax({
+                            type: "get",
+                            url: "http://127.0.0.1:3000/insert1?text=" + $('.input').val(),
+                            dataType: "json",
+                            success: function (data) {
+                                //初始化到第一页
+                                theIndex = 1;
+                                var _html = "";
+                                var _html1 = _this.setHtml(_html, data);
+                                $('.main>ul').html('');
+                                $('.main>ul').append($(_html1));
+                            }
+                        });
+                    });
+                    //事件代理
+                    $('.main').click(function (e) {
+                        var e = event || window.event;
+                        //target表示在事件冒泡中触发事件的源元素，在IE中是srcElement 
+                        var source = e.target || e.srcElement;
+                        if($(source).hasClass('del')){
+                            var v=$(source).attr('val');
+                            console.log(v);
+                            _this.delete(v);
+                        }
+                        //阻止冒泡
+                        event.stopPropagation();
+                    });
+                },
+                //设置当前的页数
+                setIndex: function (d) {
+                    $('.index').text(d);
+                },
+                //设置HTML的排版
+                setHtml(_html, data) {
+                    for (var i in data) {
+                        if (data[i].who == "me") {
+                            _html += '<li class="li clearfix">';
+                            _html += '<div class="fr" >' + data[i].say +
+                                '</div ><button class="fr del"  val="' + data[i].id + '">删除</button>';
+                            _html += '</li >';
+                        } else {
+                            _html += '<li class="li clearfix">';
+                            _html += '<div class="fl" >' + data[i].say +
+                                '</div ><button class="fl del" val="' + data[i].id + '">删除</button>';
+                            _html += '</li >';
+                        }
+                    }
+                    return _html;
+                },
+                find: function () {
+                    var _this = this;
+                    $.ajax({
+                        type: "post",
+                        url: "http://127.0.0.1:3000/find",
+                        data: {
+                            "pageIndex": theIndex
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            var _html = "";
+                            if (data.length > 0) {
+
+                            } else {
+                                //没有值跳出当前循环
+                                $('.main>ul').html('<li class="title">暂无数据</li>');
+                                return;
+                            }
+                            var _html1 = _this.setHtml(_html, data);
+                            $('.main>ul').html('');
+                            $('.main>ul').append($(_html1));
+                        }
+                    });
+                },
+                delete: function (v) {
+                    var _this = this;
+                    $.ajax({
+                        type: "post",
+                        url: "http://127.0.0.1:3000/delete",
+                        data: {
+                            "theId": v
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            //初始化到第一页
+                            theIndex = 1;
+                            var _html = "";
+                            var _html1 = _this.setHtml(_html, data);
+                            $('.main>ul').html('');
+                            $('.main>ul').append($(_html1));
+                        }
+                    });
+                }
+            };
+            theText.init();
+
+        })
+    </script>
+</body>
+
+</html>
